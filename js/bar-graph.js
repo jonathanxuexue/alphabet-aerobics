@@ -4,6 +4,48 @@ let graphWrapper;
 let letterContainer;
 let lastClass;
 
+// Speech recognition stuff
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+var SpeechRecognitionEvent =
+    SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+let recognition = new SpeechRecognition();
+recognition.continuous = true;
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+recognition.maxAlternatives = 1;
+recognition.start();
+let text = '';
+
+const keyword = 'click';
+
+recognition.onstart = function (event) {
+    console.log('SPEECH REC STARTED');
+}
+
+recognition.onresult = function (event) {
+    let fullTranscript = '';
+    for (let r = 0; r < event.results.length; r++) {
+        fullTranscript += event.results[r][0].transcript;
+    }
+    text = fullTranscript;
+
+    let lastWordSaid = event.results[event.results.length - 1][0].transcript.trim();
+
+    console.log(text);
+    console.log('LAST WORD: ', lastWordSaid);
+
+    if (lastWordSaid == 'click' || lastWordSaid == 'press' || lastWordSaid == 'print' || lastWordSaid == 'select') {
+        console.log('writing on!');
+        letterContainer.innerText = letterContainer.innerText + ' ' + lastClass;
+    }
+};
+
+recognition.onend = function (event) {
+    console.log('speech recognition ended');
+    recognition.start();
+};
+
 // these are the colors of our bars
 let colors = ['#E67701', '#D84C6F', '#794AEF', '#1291D0'];
 let lightColors = ['#FFECE2', '#FFE9EC', '#F1F0FF', '#E2F5FF'];
@@ -26,19 +68,27 @@ export async function setupBarGraph(URL) {
     labels.forEach((label, index) => makeBar(label, index));
 }
 
-// This function makes a bar in the graph
+// Render each class
 function makeBar(label, index) {
     // make the elements of the bar
     let barWrapper = document.createElement('div');
+    barWrapper.classList.add('class');
+    barWrapper.id = label;
     let barEl = document.createElement('progress');
     let percentEl = document.createElement('span');
     let labelEl = document.createElement('span');
     labelEl.innerText = label;
 
+    let labelImage = document.createElement('img');
+    labelImage.src = '../public/' + label.toLowerCase() + 'Draw.png';
+
+
     // assemble the elements
     barWrapper.appendChild(labelEl);
     barWrapper.appendChild(barEl);
     barWrapper.appendChild(percentEl);
+    barWrapper.appendChild(labelImage);
+    labelImage.classList.add('letter-image');
     let graphWrapper = document.getElementById('graph-wrapper');
     graphWrapper.appendChild(barWrapper);
 
@@ -79,16 +129,25 @@ export function updateBarGraph(data) {
         percentElement.innerText = convertToPercent(probability);
     });
 
-    if (lastClass != currentClass) {
-        if (currentClass == data[0].className) {
-            // First class
-            letterContainer.innerText = letterContainer.innerText + '0';
-        } else if (currentClass == data[1].className) {
-            // Second class
-            letterContainer.innerText = letterContainer.innerText + '1';
-        }
-    }
     lastClass = currentClass;
+    
+    data.forEach(({ className, probability }) => {
+        if (lastClass == className) {
+            document.getElementById(className).style.background = 'yellow';
+        } else {
+            document.getElementById(className).style.background = 'none';
+        }
+    });
+
+    // if (lastClass != currentClass) {
+    //     if (currentClass == data[0].className) {
+    //         // First class
+    //         letterContainer.innerText = letterContainer.innerText + 'A';
+    //     } else if (currentClass == data[1].className) {
+    //         // Second class
+    //         letterContainer.innerText = letterContainer.innerText + 'B';
+    //     }
+    // }
 }
 
 // This function converts a decimal number (between 0 and 1)

@@ -102,12 +102,16 @@ h2 {
 
 #graph-wrapper {
   left: 0;
-  top: 20%;
-  width: 20%;
+  top: 30%;
+  width: 50%;
   margin: 0;
   position: absolute;
   padding: 0px;
   text-align: left;
+}
+
+.letter-image {
+  width: 50px;
 }
 
 #graph-wrapper>div {
@@ -120,7 +124,7 @@ h2 {
 
 #graph-wrapper>div>* {
   display: inline-block;
-  width: var(--box-size);
+  /* width: var(--box-size); */
   margin: 0 10px;
 }
 
@@ -155,7 +159,8 @@ h2 {
 
 #letter-container {
   font-size: 45px;
-  background: pink;
+  background: black;
+  color: white;
   width: 50%;
   height: 100%;
   position: absolute;
@@ -167,4 +172,16 @@ h2 {
   position: relative;
   width: 90%;
   overflow-wrap: break-word;
+}
+
+.class {
+  background: none;
+}
+
+#instructions {
+  text-align: center;
+  left: 15%;
+  width: 26%;
+  font-size: 24px;
+  position: absolute;
 }

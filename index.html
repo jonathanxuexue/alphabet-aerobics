@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Pose Model Demo - Teachable Machine</title>
+        <title>Alphabet Aerobics</title>
+        <link rel="icon" href="public/zDraw.png" type="image/x-icon" />
         <!-- don't mind these: -->
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -23,6 +24,9 @@
             <div id="webcam-wrapper">
               <div class="loader"></div>
               <canvas id="webcam-pose-canvas"></canvas>
+            </div>
+            <div id="instructions">
+                Say 'select' to type a letter!
             </div>
             <div id="graph-wrapper"></div>
         </section>
@@ -47,7 +51,8 @@
             // let URL = 'https://storage.googleapis.com/tm-models/QDvGMpQt/';
             // let URL = 'https://teachablemachine.withgoogle.com/models/q742PDwn/'; // Image based
             // let URL = 'https://teachablemachine.withgoogle.com/models/07tCqept/'; // PoseNet right vs left side
-            let URL = 'https://teachablemachine.withgoogle.com/models/4a5vNE33/'; // Shoulder shrug
+            // let URL = 'https://teachablemachine.withgoogle.com/models/4a5vNE33/'; // Shoulder shrug
+            let URL = 'https://teachablemachine.withgoogle.com/models/1qUnHvUj/'; // ABCDE BASED ON face position
             // setupBarGraph is defined in the js/bar-graph.js file
             setupBarGraph(URL);
             // setupModel is defined in the js/model-runner.js file
