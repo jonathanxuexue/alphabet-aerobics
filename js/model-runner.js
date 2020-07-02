@@ -16,14 +16,14 @@ export async function setupModel(URL, predictionCB) {
 
     // this function from the tmImage library returns a video element that
     // shows a video feed from the webcam
-    webcam = new window.tmPose.Webcam(200, 200, true); //width, height, flipped
+    webcam = new window.tmPose.Webcam(400, 400, true); //width, height, flipped
     await webcam.setup(); // request access to the webcam
     await webcam.play();
 
     // get our canvas that we will draw the webcam and pose to
     const canvas = document.getElementById('webcam-pose-canvas');
-    canvas.width = 200;
-    canvas.height = 200;
+    canvas.width = 400;
+    canvas.height = 400;
     context = canvas.getContext('2d');
 
     // kick off the model prediction loop
