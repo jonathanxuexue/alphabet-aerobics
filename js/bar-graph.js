@@ -47,8 +47,49 @@ recognition.onend = function (event) {
 };
 
 // these are the colors of our bars
+let whitecolor = '#ffffff';
+
 let colors = ['#E67701', '#D84C6F', '#794AEF', '#1291D0'];
 let lightColors = ['#FFECE2', '#FFE9EC', '#F1F0FF', '#E2F5FF'];
+
+//this function makes the letter comparison display
+export async function setupLetterDisplay(URL) {
+    //the metadata json file contains the text labels of your model
+    const metadataURL = `${URL}metadata.json`;
+    // get the metadata fdrom the file URL
+    const response = await fetch(metadataURL);
+    const json = await response.json();
+    //get the names of the labels from the metadata of the model
+    labels = json.labels;
+
+}
+
+//this function renders the display
+function makeDisplay() {
+    let displayWrapper = document.createElement('div');
+    displayWrapper.classList.add('class');
+    displayWrapper.id = label;
+
+    let labelImage =  document.createElement('img');
+    labelImage.src =  '../public/' + label.toLowerCase() + 'Draw.png';
+}
+
+export function updateDisplay(data) {
+    let currentClass;
+    let highestProb = 0;
+
+    lastClass = currentClass;
+
+    data.forEach(({className, probability})=> {
+        if (lastClass == className) {
+            let labelImage = document.createElement('img');
+            labelImage.src = '../public/' + label.toLowerCase() + 'Draw.png';
+        } else {
+            let labelImage = document.createElement('img');
+            labelImage.src = '../public/' + label.toLowerCase() + 'Draw.png';
+        }
+    });
+}
 
 // This function makes the bar graph
 // it takes in a URL to a teachable machine model,
@@ -66,6 +107,8 @@ export async function setupBarGraph(URL) {
     letterContainer = document.getElementById('text');
     // make a bar in the graph for each label in the metadata
     labels.forEach((label, index) => makeBar(label, index));
+    displayWrapper.style.color = whitecolor;
+    displayWrapper.style.setProperty('--color',whitecolor);
 }
 
 // Render each class
