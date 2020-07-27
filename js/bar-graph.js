@@ -30,7 +30,9 @@ recognition.onresult = function (event) {
     }
     text = fullTranscript;
 
-    let lastWordSaid = event.results[event.results.length - 1][0].transcript.trim();
+    const transcript = event.results[event.results.length - 1][0].transcript.trim();
+    const words = transcript.split(' ');
+    const lastWordSaid = words[words.length - 1];
 
     console.log(text);
     console.log('LAST WORD: ', lastWordSaid);
@@ -38,6 +40,7 @@ recognition.onresult = function (event) {
     if (lastWordSaid == 'click' || lastWordSaid == 'press' || lastWordSaid == 'print' || lastWordSaid == 'select') {
         console.log('writing on!');
         letterContainer.innerText = letterContainer.innerText + ' ' + lastClass;
+        bars[className].image.classList.add('selected');
     }
 };
 
@@ -46,108 +49,70 @@ recognition.onend = function (event) {
     recognition.start();
 };
 
-// these are the colors of our bars
-let whitecolor = '#ffffff';
-
-let colors = ['#E67701', '#D84C6F', '#794AEF', '#1291D0'];
-let lightColors = ['#FFECE2', '#FFE9EC', '#F1F0FF', '#E2F5FF'];
-
-//this function makes the letter comparison display
-export async function setupLetterDisplay(URL) {
-    //the metadata json file contains the text labels of your model
-    const metadataURL = `${URL}metadata.json`;
-    // get the metadata fdrom the file URL
-    const response = await fetch(metadataURL);
-    const json = await response.json();
-    //get the names of the labels from the metadata of the model
-    labels = json.labels;
-
-}
-
-//this function renders the display
-function makeDisplay() {
-    let displayWrapper = document.createElement('div');
-    displayWrapper.classList.add('class');
-    displayWrapper.id = label;
-
-    let labelImage =  document.createElement('img');
-    labelImage.src =  '../public/' + label.toLowerCase() + 'Draw.png';
-}
-
-export function updateDisplay(data) {
-    let currentClass;
-    let highestProb = 0;
-
-    lastClass = currentClass;
-
-    data.forEach(({className, probability})=> {
-        if (lastClass == className) {
-            let labelImage = document.createElement('img');
-            labelImage.src = '../public/' + label.toLowerCase() + 'Draw.png';
-        } else {
-            let labelImage = document.createElement('img');
-            labelImage.src = '../public/' + label.toLowerCase() + 'Draw.png';
-        }
-    });
-}
-
-// This function makes the bar graph
-// it takes in a URL to a teachable machine model,
-// so we can retrieve the labels of our classes for the bars
-export async function setupBarGraph(URL) {
+export async function setupKeyboard(URL) {
     // the metatadata json file contains the text labels of your model
     const metadataURL = `${URL}metadata.json`;
     // get the metadata fdrom the file URL
     const response = await fetch(metadataURL);
     const json = await response.json();
+
     // get the names of the labels from the metadata of the model
     labels = json.labels;
-    // get the area of the webpage we want to build the bar graph
-    graphWrapper = document.getElementById('graph-wrapper');
+
+    //get the area of the webpage we want to build the keys
+    let keyback = document.getElementById('back');
     letterContainer = document.getElementById('text');
-    // make a bar in the graph for each label in the metadata
-    labels.forEach((label, index) => makeBar(label, index));
-    displayWrapper.style.color = whitecolor;
-    displayWrapper.style.setProperty('--color',whitecolor);
+
+
+    labels.forEach((label) => makeKey(label));
 }
 
-// Render each class
-function makeBar(label, index) {
-    // make the elements of the bar
-    let barWrapper = document.createElement('div');
-    barWrapper.classList.add('class');
-    barWrapper.id = label;
-    let barEl = document.createElement('progress');
-    let percentEl = document.createElement('span');
-    let labelEl = document.createElement('span');
-    labelEl.innerText = label;
+function makeKey(label) {
+    let key = document.createElement('div');
+    key.classList.add('key');
+    key.classList.add('key' + label);
+    key.id = label;
 
-    let labelImage = document.createElement('img');
-    labelImage.src = '../public/' + label.toLowerCase() + 'Draw.png';
+    let keyImage = document.createElement('img');
+    keyImage.classList.add('letter-image')
+    keyImage.src =  '../alphabet-aerobics/public/' + label.toLowerCase() + 'Draw.svg';
 
+    let keyback =  document.getElementById('back');
+    keyback.appendChild(key);
+    key.appendChild(keyImage);
+}
 
-    // assemble the elements
-    barWrapper.appendChild(labelEl);
-    barWrapper.appendChild(barEl);
-    barWrapper.appendChild(percentEl);
-    barWrapper.appendChild(labelImage);
-    labelImage.classList.add('letter-image');
-    let graphWrapper = document.getElementById('graph-wrapper');
-    graphWrapper.appendChild(barWrapper);
+export async function setupDisplay(URL) {
+    const metadataURL = `${URL}metadata.json`;
+    // get the metadata fdrom the file URL
+    const response = await fetch(metadataURL);
+    const json = await response.json();
 
-    // style the elements
-    let color = colors[index % colors.length];
-    let lightColor = lightColors[index % colors.length];
-    barWrapper.style.color = color;
-    barWrapper.style.setProperty('--color', color);
-    barWrapper.style.setProperty('--color-light', lightColor);
+    // get the names of the labels from the metadata of the model
+    labels = json.labels;
 
-    // save references to each element, so we can update them later
+    let display = document.getElementById('display-wrapper');
+
+    labels.forEach((label) => makeImage(label));
+}
+
+function makeImage(label) {
+
+    let displayImage = document.createElement('img');
+
+    displayImage.classList.add('letter');
+    displayImage.src = '../alphabet-aerobics/public/' + label.toLowerCase() + 'Draw.svg';
+
+    let display = document.getElementById('display-wrapper');
+
+    display.appendChild(displayImage);
+
     bars[label] = {
-        bar: barEl,
-        percent: percentEl
+        image: displayImage
     };
 }
+
+
 
 // This function takes data (retrieved in the model.js file)
 // The data is in the form of an array of objects like this:
@@ -160,25 +125,41 @@ export function updateBarGraph(data) {
     data.forEach(({ className, probability }) => {
         // get the HTML elements that we stored in the makeBar function
         let barElements = bars[className];
-        let barElement = barElements.bar;
-        let percentElement = barElements.percent;
+        let image = barElements.image;
         // set the progress on the bar
-        barElement.value = probability;
         if (probability > highestProb) {
             highestProb = probability;
             currentClass = className;
         }
         // set the percent value on the label
-        percentElement.innerText = convertToPercent(probability);
+        // percentElement.innerText = convertToPercent(probability);
     });
 
     lastClass = currentClass;
+
+    // |data| is of the format:
+    // [ {className: 'A', probability: 0.4, num: 2, magic: true }, {...}, {...}, {...} ]
+
+    // data.forEach((datum) => {
+    //     // |datum| is of  the format:
+    //     // { className: 'B', probability: 0.3 }
+    //     const className = datum.className;
+    //     const probability = datum.probability;
+    // });
+
+    // data.forEach(({ className, probability, ...rest}) => {
+    //     // |datum| is of  the format:
+    //     // { className: 'B', probability: 0.3 }
+    //     // const className = datum.className;
+    //     // const probability = datum.probability;
+    // });
     
     data.forEach(({ className, probability }) => {
+       
         if (lastClass == className) {
-            document.getElementById(className).style.background = 'yellow';
+            bars[className].image.classList.add('on');
         } else {
-            document.getElementById(className).style.background = 'none';
+            bars[className].image.classList.remove('on');
         }
     });
 
